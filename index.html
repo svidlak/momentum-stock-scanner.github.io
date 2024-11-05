@@ -19,7 +19,7 @@
         }
 
         .pulse-animation {
-            animation: pulse 1s infinite;
+            animation: pulse 1s 5 forwards;
         }
 
         @keyframes rowAppear {
@@ -196,15 +196,11 @@
             const timestampElement = document.getElementById('stock-timestamp');
 
             indicator.classList.remove('hidden');
-            indicator.classList.add('pulse-animation');
+            stockInfo.classList.add('pulse-animation');
 
             stockNameElement.innerText = stockName;
             stockChangeElement.innerText = changePercentage;
             timestampElement.innerText =  createNewDate();
-
-            setTimeout(() => {
-                indicator.classList.remove('pulse-animation');
-            }, 5000);
         }
 
         function notifyAboutNewStock(stockName, changePercentage) {
