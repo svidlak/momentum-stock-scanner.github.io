@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Stock News Scanner</title>
+    <style>
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes rowAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-row {
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: rowAppear 0.5s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <body class="bg-gray-900 text-white">
+        <div class="flex justify-center min-h-screen">
+            <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full m-6">
+                <h2 class="text-2xl font-bold mb-4 text-center">Stock News Scanner</h2>
+
+                <div id="new-stock-indicator" class="hidden flex flex-col items-center text-green-500 font-bold text-xl mb-4">
+                    <div id="stock-info" class="text-center">New Stock Added: <span id="stock-name"></span> (<span id="stock-change"></span>)</div>
+                    <div id="timestamp" class="text-sm mt-2 text-gray-400">Timestamp: <span id="stock-timestamp"></span></div>
+                </div>
+
+                <table id="dataTable" class="min-w-full bg-gray-700 rounded-lg overflow-hidden text-center">
+                    <thead>
+                        <tr class="bg-gray-600">
+                            <th class="py-2 px-4">Symbol</th>
+                            <th class="py-2 px-4">Price Change</th>
+                            <th class="py-2 px-4">Has News</th>
+                            <th class="py-2 px-4">Volume</th>
+                            <th class="py-2 px-4">Market Cap</th>
+                            <th class="py-2 px-4">Shares Float</th>
+                            <th class="py-2 px-4">Alerts Count</th>
+                            <th class="py-2 px-4">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        (function() {
+            requestNotificationPermission();
+            const titanScannerWsUrl = "wss://ws.stocktitan.net:9021/null"
+            const ws = new WebSocket(titanScannerWsUrl);
+
+            ws.onmessage = msg => {
+                const { data: dataStringified } = msg;
+                const { header: { type }, payload } = JSON.parse(dataStringified);
+
+                if(type !== "journal") return;
+                
+                // if (price_change_ratio > 0) {
+                //     if(alert_count === 1) {
+
+                //         return;
+                //     }
+
+                //     insertNewTableRow(payload);
+                // }
+
+                if(payload.alert_count) {
+                    insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio))
+                    notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio))
+                }
+
+                insertNewTableRow(payload);
+
+            }
+        })();
+
+            const lightGreenClass = 'bg-green-300';
+            const mediumGreenClass = 'bg-green-500';
+            const darkGreenClass = 'bg-green-700';
+            const darkestGreenClass = 'bg-green-900';
+
+            const greenTextColor = 'text-green-500'
+            const redTextColor = 'text-red-500';
+
+            const maxTableRows = 3;
+
+            const thresholds = {
+                volume: [
+                    { max: 100_000, class: lightGreenClass },
+                    { max: 250_000, class: mediumGreenClass },
+                    { max: 500_000, class: darkGreenClass },
+                    { max: Infinity, class: darkestGreenClass }
+                ],
+                marketCap: [
+                    { max: 100_000_000, class: darkestGreenClass },
+                    { max: 200_000_000, class: darkGreenClass },
+                    { max: 1_000_000_000, class: mediumGreenClass },
+                    { max: Infinity, class: lightGreenClass }
+                ],
+                sharesFloat: [
+                    { max: 10_000_000, class: darkestGreenClass },
+                    { max: 50_000_000, class: darkGreenClass },
+                    { max: 100_000_000, class: mediumGreenClass },
+                    { max: Infinity, class: lightGreenClass }
+                ]
+            };
+
+        function insertNewTableRow(newRowData) {
+            const tableBody = document.querySelector('#dataTable tbody');
+            const newRow = document.createElement('tr');
+
+            if (tableBody.rows.length >= maxTableRows) {
+                tableBody.deleteRow(maxTableRows-1);
+            }
+
+            newRow.classList.add('hover:bg-gray-600');
+
+            const formattedVolume = formatNumber(newRowData.volume); 
+            const formattedMarketCap = formatNumber(newRowData.market_cap);
+            const formattedSharesFloat = formatNumber(newRowData.shares_float);
+
+            const volumeBgClass = getBackgroundClass(newRowData.volume, 'volume');
+            const marketCapBgClass = getBackgroundClass(newRowData.market_cap, 'marketCap');
+            const sharesFloatBgClass = getBackgroundClass(newRowData.shares_float, 'sharesFloat');
+
+            const hasNews = newRowData.news.length > 0;
+
+            newRow.innerHTML = `
+                <td class="py-2 px-4">${newRowData.symbol}</td>
+                <td class="py-2 px-4 ${greenTextColor}">${formatPercentage(newRowData.price_change_ratio)}</td>
+                <td class="py-2 px-4 ${hasNews ? greenTextColor : redTextColor}">${hasNews}</td>
+                <td class="py-2 px-4 ${volumeBgClass}">${formattedVolume}</td>
+                <td class="py-2 px-4 ${marketCapBgClass}">${formattedMarketCap}</td>
+                <td class="py-2 px-4 ${sharesFloatBgClass}">${formattedSharesFloat}</td>
+                <td class="py-2 px-4">${newRowData.alert_count}</td>
+                <td class="py-2 px-4">${createNewDate()}</td>
+            `;
+
+            newRow.classList.add('fade-in-row');
+            tableBody.insertBefore(newRow, tableBody.firstChild);
+        }
+
+        function createNewDate() {
+            const date = new Date();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            const seconds = date.getSeconds().toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+
+            return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+        }
+
+        function formatPercentage(value) {
+            return (value * 100).toFixed(2) + '%';
+        }
+
+        function formatNumber(value) {
+            return value.toLocaleString();
+        }
+
+        function getBackgroundClass(value, type) {
+            const ranges = thresholds[type];
+
+            for (let i = 0; i < ranges.length; i++) {
+                if (value < ranges[i].max) {
+                    return ranges[i].class;
+                }
+            }
+        }
+
+        function insertHasntSeenBeforeStock(stockName, changePercentage) {
+            const indicator = document.getElementById('new-stock-indicator');
+            const stockInfo = document.getElementById('stock-info');
+            const stockNameElement = document.getElementById('stock-name');
+            const stockChangeElement = document.getElementById('stock-change');
+            const timestampElement = document.getElementById('stock-timestamp');
+
+            indicator.classList.remove('hidden');
+            indicator.classList.add('pulse-animation');
+
+            stockNameElement.innerText = stockName;
+            stockChangeElement.innerText = changePercentage;
+
+            const timestamp = createNewDate();
+            timestampElement.innerText = timestamp;
+
+            setTimeout(() => {
+                indicator.classList.remove('pulse-animation');
+            }, 5000);
+        }
+
+        function notifyAboutNewStock(stockName, changePercentage) {
+            const notificationTitle = `New Stock Added: ${stockName}`;
+            const notificationBody = `${stockName} has been added with a ${changePercentage} change.`
+
+            if (Notification.permission === "granted") {
+                new Notification(notificationTitle, { body: notificationBody });
+            }
+        }
+
+        function requestNotificationPermission() {
+            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        console.log("Notification permission granted");
+                    }
+                });
+            }
+        }
+
+    </script>
+</body>
+</html>
