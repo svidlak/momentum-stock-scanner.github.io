@@ -60,6 +60,7 @@ function createTableRow(data) {
 
     row.innerHTML = `
         <td class="py-2 px-4">${data.symbol}</td>
+        <td class="py-2 px-4">${data.price}</td>
         <td class="py-2 px-4 ${greenTextColor}">${formattedData.priceChangeRatio}</td>
         <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor : redTextColor}">${formattedData.hasNews ? 'Yes' : 'No'}</td>
         <td class="py-2 px-4 ${formattedData.volumeBgClass}">${formattedData.volume}</td>
