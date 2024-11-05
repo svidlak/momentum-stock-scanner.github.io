@@ -83,22 +83,14 @@
 
                 if(type !== "journal") return;
                 
-                // if (price_change_ratio > 0) {
-                //     if(alert_count === 1) {
+                if (price_change_ratio > 0) {
+                    if(payload.alert_count === 1) {
+                        insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio))
+                        notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio))
+                    }
 
-                //         return;
-                //     }
-
-                //     insertNewTableRow(payload);
-                // }
-
-                if(payload.alert_count) {
-                    insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio))
-                    notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio))
+                    insertNewTableRow(payload);
                 }
-
-                insertNewTableRow(payload);
-
             }
         })();
 
@@ -110,7 +102,7 @@
             const greenTextColor = 'text-green-500'
             const redTextColor = 'text-red-500';
 
-            const maxTableRows = 3;
+            const maxTableRows = 10;
 
             const thresholds = {
                 volume: [
@@ -133,51 +125,98 @@
                 ]
             };
 
-        function insertNewTableRow(newRowData) {
+        function insertNewTableRow(data) {
             const tableBody = document.querySelector('#dataTable tbody');
-            const newRow = document.createElement('tr');
-
+            const row = createTableRow(data);
+            
             if (tableBody.rows.length >= maxTableRows) {
-                tableBody.deleteRow(maxTableRows-1);
+                tableBody.deleteRow(tableBody.rows.length - 1);
             }
 
-            newRow.classList.add('hover:bg-gray-600');
-
-            const formattedVolume = formatNumber(newRowData.volume); 
-            const formattedMarketCap = formatNumber(newRowData.market_cap);
-            const formattedSharesFloat = formatNumber(newRowData.shares_float);
-
-            const volumeBgClass = getBackgroundClass(newRowData.volume, 'volume');
-            const marketCapBgClass = getBackgroundClass(newRowData.market_cap, 'marketCap');
-            const sharesFloatBgClass = getBackgroundClass(newRowData.shares_float, 'sharesFloat');
-
-            const hasNews = newRowData.news.length > 0;
-
-            newRow.innerHTML = `
-                <td class="py-2 px-4">${newRowData.symbol}</td>
-                <td class="py-2 px-4 ${greenTextColor}">${formatPercentage(newRowData.price_change_ratio)}</td>
-                <td class="py-2 px-4 ${hasNews ? greenTextColor : redTextColor}">${hasNews}</td>
-                <td class="py-2 px-4 ${volumeBgClass}">${formattedVolume}</td>
-                <td class="py-2 px-4 ${marketCapBgClass}">${formattedMarketCap}</td>
-                <td class="py-2 px-4 ${sharesFloatBgClass}">${formattedSharesFloat}</td>
-                <td class="py-2 px-4">${newRowData.alert_count}</td>
-                <td class="py-2 px-4">${createNewDate()}</td>
-            `;
-
-            newRow.classList.add('fade-in-row');
-            tableBody.insertBefore(newRow, tableBody.firstChild);
+            tableBody.insertBefore(row, tableBody.firstChild);
         }
+
+        function createTableRow(data) {
+            const formattedData = {
+                volume: formatNumber(data.volume),
+                marketCap: formatNumber(data.market_cap),
+                sharesFloat: formatNumber(data.shares_float),
+                priceChangeRatio: formatPercentage(data.price_change_ratio),
+                hasNews: data.news.length > 0,
+                volumeBgClass: getBackgroundClass(data.volume, 'volume'),
+                marketCapBgClass: getBackgroundClass(data.market_cap, 'marketCap'),
+                sharesFloatBgClass: getBackgroundClass(data.shares_float, 'sharesFloat'),
+                timestamp: createNewDate(),
+            };
+
+            const row = document.createElement('tr');
+            row.classList.add('hover:bg-gray-600', 'fade-in-row');
+
+            row.innerHTML = `
+                <td class="py-2 px-4">${data.symbol}</td>
+                <td class="py-2 px-4 ${greenTextColor}">${formattedData.priceChangeRatio}</td>
+                <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor : redTextColor}">${formattedData.hasNews}</td>
+                <td class="py-2 px-4 ${formattedData.volumeBgClass}">${formattedData.volume}</td>
+                <td class="py-2 px-4 ${formattedData.marketCapBgClass}">${formattedData.marketCap}</td>
+                <td class="py-2 px-4 ${formattedData.sharesFloatBgClass}">${formattedData.sharesFloat}</td>
+                <td class="py-2 px-4">${data.alert_count}</td>
+                <td class="py-2 px-4">${formattedData.timestamp}</td>
+            `;
+            return row;
+        }
+
+
+
+        // function insertNewTableRow(newRowData) {
+        //     const tableBody = document.querySelector('#dataTable tbody');
+        //     const newRow = document.createElement('tr');
+
+        //     if (tableBody.rows.length >= maxTableRows) {
+        //         tableBody.deleteRow(maxTableRows-1);
+        //     }
+
+        //     newRow.classList.add('hover:bg-gray-600');
+
+        //     const formattedVolume = formatNumber(newRowData.volume); 
+        //     const formattedMarketCap = formatNumber(newRowData.market_cap);
+        //     const formattedSharesFloat = formatNumber(newRowData.shares_float);
+
+        //     const volumeBgClass = getBackgroundClass(newRowData.volume, 'volume');
+        //     const marketCapBgClass = getBackgroundClass(newRowData.market_cap, 'marketCap');
+        //     const sharesFloatBgClass = getBackgroundClass(newRowData.shares_float, 'sharesFloat');
+
+        //     const hasNews = newRowData.news.length > 0;
+
+        //     newRow.innerHTML = `
+        //         <td class="py-2 px-4">${newRowData.symbol}</td>
+        //         <td class="py-2 px-4 ${greenTextColor}">${formatPercentage(newRowData.price_change_ratio)}</td>
+        //         <td class="py-2 px-4 ${hasNews ? greenTextColor : redTextColor}">${hasNews}</td>
+        //         <td class="py-2 px-4 ${volumeBgClass}">${formattedVolume}</td>
+        //         <td class="py-2 px-4 ${marketCapBgClass}">${formattedMarketCap}</td>
+        //         <td class="py-2 px-4 ${sharesFloatBgClass}">${formattedSharesFloat}</td>
+        //         <td class="py-2 px-4">${newRowData.alert_count}</td>
+        //         <td class="py-2 px-4">${createNewDate()}</td>
+        //     `;
+
+        //     newRow.classList.add('fade-in-row');
+        //     tableBody.insertBefore(newRow, tableBody.firstChild);
+        // }
+
+        // function createNewDate() {
+        //     const date = new Date();
+        //     const hours = date.getHours().toString().padStart(2, '0');
+        //     const minutes = date.getMinutes().toString().padStart(2, '0');
+        //     const seconds = date.getSeconds().toString().padStart(2, '0');
+        //     const day = date.getDate().toString().padStart(2, '0');
+        //     const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        //     const year = date.getFullYear();
+
+        //     return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+        // }
 
         function createNewDate() {
             const date = new Date();
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            const seconds = date.getSeconds().toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-
-            return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+            return date.toLocaleTimeString('en-GB', { hour12: false }) + ' ' + date.toLocaleDateString('en-GB');
         }
 
         function formatPercentage(value) {
@@ -210,9 +249,7 @@
 
             stockNameElement.innerText = stockName;
             stockChangeElement.innerText = changePercentage;
-
-            const timestamp = createNewDate();
-            timestampElement.innerText = timestamp;
+            timestampElement.innerText =  createNewDate();
 
             setTimeout(() => {
                 indicator.classList.remove('pulse-animation');
@@ -220,24 +257,18 @@
         }
 
         function notifyAboutNewStock(stockName, changePercentage) {
-            const notificationTitle = `New Stock Added: ${stockName}`;
-            const notificationBody = `${stockName} has been added with a ${changePercentage} change.`
-
             if (Notification.permission === "granted") {
-                new Notification(notificationTitle, { body: notificationBody });
-            }
-        }
-
-        function requestNotificationPermission() {
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        console.log("Notification permission granted");
-                    }
+                const notification = new Notification(`New Stock Added: ${stockName}`, {
+                    body: `${stockName} has been added with a ${changePercentage} change.`
                 });
             }
         }
 
+        function requestNotificationPermission() {
+            if (Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        }
     </script>
 </body>
 </html>
