@@ -84,7 +84,7 @@
                 if(type !== "journal") return;
                 
                 if (payload.price_change_ratio > 0) {
-                    if(payload.alert_count === 1) {
+                    if(payload.alert_count === 1 && payload.news.length > 0) {
                         insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio))
                         notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio))
                     }
