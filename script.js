@@ -53,6 +53,7 @@ function createTableRow(data) {
         marketCapBgClass: getBackgroundClass(data.market_cap, 'marketCap'),
         sharesFloatBgClass: getBackgroundClass(data.shares_float, 'sharesFloat'),
         timestamp: createNewDate(),
+        redirectUrl: generateNewsRedirecURL(data.symbol, data.internal_url),
     };
 
     const row = document.createElement('tr');
@@ -62,7 +63,7 @@ function createTableRow(data) {
         <td class="py-2 px-4">${data.symbol}</td>
         <td class="py-2 px-4">${data.price}</td>
         <td class="py-2 px-4 ${greenTextColor}">${formattedData.priceChangeRatio}</td>
-        <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor : redTextColor}">${formattedData.hasNews ? 'Yes' : 'No'}</td>
+        <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor + " underline": redTextColor}">${formattedData.hasNews ? `<a href="${formattedData.redirectUrl}" target="_blank">Yes</a>` : 'No'}</td>
         <td class="py-2 px-4 ${formattedData.volumeBgClass}">${formattedData.volume}</td>
         <td class="py-2 px-4 ${formattedData.marketCapBgClass}">${formattedData.marketCap}</td>
         <td class="py-2 px-4 ${formattedData.sharesFloatBgClass}">${formattedData.sharesFloat}</td>
@@ -70,6 +71,10 @@ function createTableRow(data) {
         <td class="py-2 px-4">${formattedData.timestamp}</td>
     `;
     return row;
+}
+
+function generateNewsRedirecURL(stockName, internalUrl){
+    return `https://www.stocktitan.net/news/${stockName}/${internalUrl}.html`
 }
 
 function createNewDate() {
