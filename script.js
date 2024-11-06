@@ -222,7 +222,7 @@ function insertHasntSeenBeforeStock(stockName, changePercentage) {
  * @param {string} changePercentage - The change percentage of the stock.
  */
 function notifyAboutNewStock(stockName, changePercentage) {
-    if (Notification && Notification.permission === "granted") {
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
         new Notification(`New Stock Added: ${stockName}`, {
             body: `${stockName} has been added with a ${changePercentage} change.`
         });
@@ -233,7 +233,7 @@ function notifyAboutNewStock(stockName, changePercentage) {
  * Requests permission for desktop notifications if not already granted.
  */
 function requestNotificationPermission() {
-    if (Notification && Notification.permission === "default") {
+    if (typeof Notification !== "undefined" && Notification.permission === "default") {
         Notification.requestPermission();
     }
 }
