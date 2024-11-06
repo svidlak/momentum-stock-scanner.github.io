@@ -364,12 +364,12 @@ function sendErrorEmail(error, payload) {
             try {
                 if (isStockFilteredOutByUserSettings(payload)) return;
 
+                insertNewTableRow(payload);
+
                 if (payload.alert_count === 1 && payload.news.length > 0) {
                     insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
                     notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
                 }
-
-                insertNewTableRow(payload);
             } catch (e) {
                 console.log({ e });
                 console.log({ payload });
