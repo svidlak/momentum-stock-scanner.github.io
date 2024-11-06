@@ -4,24 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/be6fa95ceb.js" crossorigin="anonymous"></script>
+
     <title>Stock News Scanner</title>
-
     <link rel="stylesheet" href="styles.css" />
-    <script src="script.js"></script>
-
-    <script>
-        const timestamp = new Date().getTime();
-        document.querySelector('link[rel="stylesheet"]').href = 'styles.css?v=' + timestamp;
-        document.querySelector('script[src="script.js"]').src = 'script.js?v=' + timestamp;
-    </script>
 </head>
 
 <body class="bg-gray-900 text-white">
     <div class="flex justify-center min-h-screen">
         <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full m-6">
-            <h2 class="text-2xl font-bold mb-4 text-center">Stock News Scanner</h2>
+            <!-- Header  -->
+            <div class="flex justify-between items-center mb-4">
+                <div></div>
+                <h2 class="text-2xl font-bold text-center">Stock News Scanner</h2>
+                <button id="openModalButton"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
 
+            <!-- Stock from News  -->
             <div id="new-stock-indicator"
                 class="hidden flex flex-col items-center text-green-500 font-bold text-xl mb-4">
                 <div id="stock-info" class="text-center">New Stock Added: <span id="stock-name"></span> (<span
@@ -30,6 +34,7 @@
                 </div>
             </div>
 
+            <!-- Main Table -->
             <table id="dataTable" class="min-w-full bg-gray-700 rounded-lg overflow-hidden text-center">
                 <thead>
                     <tr class="bg-gray-600">
@@ -49,6 +54,113 @@
             </table>
         </div>
     </div>
+
+
+    <!--Settings Modal -->
+    <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-96">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-white">Settings</h3>
+                <button id="closeModalButton" class="text-white font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- Modal Body with Form -->
+            <form id="modalForm" class="space-y-4">
+                <!-- Price -->
+                <div class="space-y-2">
+                    <label for="price" class="text-white">Price</label>
+                    <div class="flex space-x-4">
+                        <select id="price"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="above">Above</option>
+                            <option value="below">Below</option>
+                        </select>
+                        <input type="number" id="priceInput"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter number">
+                    </div>
+                </div>
+
+                <!-- Has News (True/False) -->
+                <div class="space-y-2">
+                    <label for="hasNews" class="text-white">Has News</label>
+                    <div class="flex space-x-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="hasNewsTrue" class="form-checkbox h-5 w-5 text-blue-600">
+                            <label for="hasNewsTrue" class="ml-2 text-white">True</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Volume -->
+                <div class="space-y-2">
+                    <label for="volume" class="text-white">Volume</label>
+                    <div class="flex space-x-4">
+                        <select id="volumeSelect"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="above">Above</option>
+                            <option value="below">Below</option>
+                        </select>
+                        <input type="number" id="volume"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter volume">
+                    </div>
+                </div>
+
+                <!-- Market Cap -->
+                <div class="space-y-2">
+                    <label for="marketCap" class="text-white">Market Cap</label>
+                    <div class="flex space-x-4">
+                        <select id="marketCapSelect"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="above">Above</option>
+                            <option value="below">Below</option>
+                        </select>
+                        <input type="number" id="marketCap"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter market cap">
+                    </div>
+                </div>
+
+                <!-- Shares Float -->
+                <div class="space-y-2">
+                    <label for="sharesFloat" class="text-white">Shares Float</label>
+                    <div class="flex space-x-4">
+                        <select id="sharesFloatSelect"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="above">Above</option>
+                            <option value="below">Below</option>
+                        </select>
+                        <input type="number" id="sharesFloat"
+                            class="w-1/2 px-4 py-2 rounded-md text-black bg-gray-200 border border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter shares float">
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-between mt-4">
+                    <button type="button" id="defeaultSettingsButton"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bsold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Default
+                    </button>
+
+                    <button type="button" id="saveButton"
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-300">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
+<script src="script.js"></script>
+<script src="modal.js"></script>
+<script>
+    const timestamp = new Date().getTime();
+    document.querySelector('link[rel="stylesheet"]').href = 'styles.css?v=' + timestamp;
+    document.querySelector('script[src="script.js"]').src = 'script.js?v=' + timestamp;
+    document.querySelector('script[src="modal.js"]').src = 'modal.js?v=' + timestamp;
+</script>
 
 </html>
