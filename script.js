@@ -281,7 +281,8 @@ function isStockFilteredOutByUserSettings(data) {
         doesNotMeetThreshold(data.price, formData.price, formData.priceInput) ||
         doesNotMeetThreshold(data.volume, formData.volumeSelect, formData.volume) ||
         doesNotMeetThreshold(data.market_cap, formData.marketCapSelect, formData.marketCap) ||
-        doesNotMeetThreshold(data.shares_float, formData.sharesFloatSelect, formData.sharesFloat)
+        doesNotMeetThreshold(data.shares_float, formData.sharesFloatSelect, formData.sharesFloat) ||
+        doesNotMeetThreshold(data.alert_count, formData.alertsNumberSelect, formData.alertsNumber)
     ) {
         return true;
     }

@@ -1,4 +1,38 @@
 /**
+ * Represents the default settings for financial filtering.
+ * 
+ * @typedef {Object} DefaultData
+ * @property {'above' | 'below'} price - The filter condition for the price (above, below, or equal).
+ * @property {number} priceInput - The numerical value associated with the price filter.
+ * @property {boolean} hasNewsTrue - A flag indicating whether news is considered in the filter.
+ * @property {'above' | 'below'} volumeSelect - The filter condition for the trading volume (above, below, or equal).
+ * @property {number} volume - The numerical value associated with the trading volume filter.
+ * @property {'above' | 'below'} marketCapSelect - The filter condition for the market capitalization (above, below, or equal).
+ * @property {number} marketCap - The numerical value associated with the market capitalization filter.
+ * @property {'above' | 'below'} sharesFloatSelect - The filter condition for the shares float (above, below, or equal).
+ * @property {number} sharesFloat - The numerical value associated with the shares float filter.
+ * @property {'above' | 'below' } alertsNumberSelect - The filter condition for the number of alerts (above, below, or equal).
+ * @property {number} alertsNumber - The numerical value associated with the alerts number filter.
+ */
+
+/** 
+ * @type {DefaultData}
+ */
+const defaultData = {
+    price: 'above',
+    priceInput: 0,
+    hasNewsTrue: false,
+    volumeSelect: 'above',
+    volume: 0,
+    marketCapSelect: 'above',
+    marketCap: 0,
+    sharesFloatSelect: 'above',
+    sharesFloat: 0,
+    alertsNumberSelect: 'above',
+    alertsNumber: 0,
+};
+
+/**
  * Initializes the form fields with data stored in localStorage.
  * If no data is available, default values are applied.
  * 
@@ -17,6 +51,8 @@ function initializeFormFromCookie() {
     document.getElementById('marketCap').value = formData.marketCap || 0;
     document.getElementById('sharesFloatSelect').value = formData.sharesFloatSelect || 'above';
     document.getElementById('sharesFloat').value = formData.sharesFloat || 0;
+    document.getElementById('alertsNumberSelect').value = formData.alertsNumberSelect || 'above';
+    document.getElementById('alertsNumber').value = formData.alertsNumber || 0;
 }
 
 /**
@@ -34,7 +70,9 @@ function handleSaveForm() {
         marketCapSelect: document.getElementById('marketCapSelect').value,
         marketCap: parseInt(document.getElementById('marketCap').value),
         sharesFloatSelect: document.getElementById('sharesFloatSelect').value,
-        sharesFloat: parseInt(document.getElementById('sharesFloat').value)
+        sharesFloat: parseInt(document.getElementById('sharesFloat').value),
+        alertsNumberSelect: document.getElementById('alertsNumberSelect').value,
+        alertsNumber: parseInt(document.getElementById('alertsNumber').value),
     };
 
     localStorage.setItem("formData", JSON.stringify(formData));
@@ -50,18 +88,6 @@ function handleSaveForm() {
 function setDefaultCookie() {
     const formData = localStorage.getItem("formData");
     if (!formData) {
-        const defaultData = {
-            price: 'above',
-            priceInput: 0,
-            hasNewsTrue: false,
-            volumeSelect: 'above',
-            volume: 0,
-            marketCapSelect: 'above',
-            marketCap: 0,
-            sharesFloatSelect: 'above',
-            sharesFloat: 0
-        };
-
         localStorage.setItem("formData", JSON.stringify(defaultData));
     }
 }
@@ -75,18 +101,6 @@ function setDefaultCookie() {
  * @returns {void} - This function does not return anything.
  */
 function resetDefaultCookieValues() {
-    const defaultData = {
-        price: 'above',
-        priceInput: 0,
-        hasNewsTrue: false,
-        volumeSelect: 'above',
-        volume: 0,
-        marketCapSelect: 'above',
-        marketCap: 0,
-        sharesFloatSelect: 'above',
-        sharesFloat: 0
-    };
-
     // Save the default data in localStorage
     localStorage.setItem("formData", JSON.stringify(defaultData));
 }
