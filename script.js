@@ -298,13 +298,14 @@ function isStockFilteredOutByUserSettings(data) {
  */
 (function () {
     requestNotificationPermission();
+
     const ws = new WebSocket(titanScannerWsUrl);
     ws.onerror = (msg, ev) => {
-        console.log({ msg, ev});
+        console.log({ msg, ev });
     }
 
     ws.onclose = (msg, ev) => {
-        console.log({ msg, ev});
+        console.log({ msg, ev });
     }
 
     ws.onmessage = msg => {
@@ -314,16 +315,15 @@ function isStockFilteredOutByUserSettings(data) {
         if (type !== "journal") return;
 
         if (payload.price_change_ratio > 0) {
-            if (isStockFilteredOutByUserSettings(payload)) return;
-
             try {
+                if (isStockFilteredOutByUserSettings(payload)) return;
+
                 if (payload.alert_count === 1 && payload.news.length > 0) {
                     insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
                     notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
                 }
 
                 insertNewTableRow(payload);
-
             } catch (e) {
                 console.log({ e });
                 console.log({ payload });
