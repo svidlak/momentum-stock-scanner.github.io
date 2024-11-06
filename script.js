@@ -295,6 +295,51 @@ function isStockFilteredOutByUserSettings(data) {
 }
 
 /**
+ * Sends an email with error details and payload to a specified recipient.
+ * This function uses the Brevo (formerly Sendinblue) API to send the email.
+ * 
+ * @param {Error} error - The error object that contains information about the error (e.g., message).
+ * @param {Object} payload - The data object that is associated with the stock processing. This is typically the payload that failed during processing.
+ * @param {string} payload.symbol - The stock symbol (e.g., 'AAPL').
+ * @param {number} payload.price_change_ratio - The price change ratio of the stock.
+ * @param {number} payload.alert_count - The number of alerts for the stock.
+ * @param {Array} payload.news - An array of news related to the stock.
+ * 
+ * @returns {void} - This function does not return anything. It performs an action of sending an email.
+ */
+function sendErrorEmail(error, payload) {
+    const errorInfo = JSON.stringify({
+        userAgent: navigator.userAgent,
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+    }, null, 2);
+
+    const emailContent = `
+        <h3>Error in Stock Processing</h3>
+        <p><strong>Error Details:</strong></p>
+        <pre>${errorInfo}</pre>
+        <h4>Payload:</h4>
+        <pre>${JSON.stringify(payload, null, 2)}</pre>
+    `;
+
+    fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'api-key': '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',
+        },
+        body: JSON.stringify({
+            sender: { email: 'svid320@gmail.com' },
+            to: [{ email: 'svid320@gmail.com' }],
+            subject: '[momentum-scanner] Error Occurred in Stock Processing',
+            htmlContent: emailContent,
+        }),
+    }).catch(() => { });
+};
+
+
+/**
  * Initializes the WebSocket connection and handles incoming messages.
  */
 (function () {
@@ -328,6 +373,7 @@ function isStockFilteredOutByUserSettings(data) {
             } catch (e) {
                 console.log({ e });
                 console.log({ payload });
+                sendErrorEmail(e, payload);
             }
 
         }
