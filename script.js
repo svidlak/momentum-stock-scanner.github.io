@@ -299,6 +299,13 @@ function isStockFilteredOutByUserSettings(data) {
 (function () {
     requestNotificationPermission();
     const ws = new WebSocket(titanScannerWsUrl);
+    ws.onerror = (msg, ev) => {
+        console.log({ msg, ev});
+    }
+
+    ws.onclose = (msg, ev) => {
+        console.log({ msg, ev});
+    }
 
     ws.onmessage = msg => {
         const { data: dataStringified } = msg;

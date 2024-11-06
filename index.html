@@ -15,7 +15,7 @@
 <body class="bg-gray-900 text-white">
     <div class="flex justify-center min-h-screen">
         <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full m-6">
-            <!-- Header  -->
+            <!-- Header -->
             <div class="flex justify-between items-center mb-4">
                 <div></div>
                 <h2 class="text-2xl font-bold text-center">Stock News Scanner</h2>
@@ -25,7 +25,7 @@
                 </button>
             </div>
 
-            <!-- Stock from News  -->
+            <!-- Stock from News -->
             <div id="new-stock-indicator"
                 class="hidden flex flex-col items-center text-green-500 font-bold text-xl mb-4">
                 <div id="stock-info" class="text-center">New Stock Added: <span id="stock-name"></span> (<span
@@ -34,27 +34,29 @@
                 </div>
             </div>
 
-            <!-- Main Table -->
-            <table id="dataTable" class="min-w-full bg-gray-700 rounded-lg overflow-hidden text-center">
-                <thead>
-                    <tr class="bg-gray-600">
-                        <th class="py-2 px-4">Symbol</th>
-                        <th class="py-2 px-4">Price</th>
-                        <th class="py-2 px-4">Price Change %</th>
-                        <th class="py-2 px-4">Has News</th>
-                        <th class="py-2 px-4">Volume</th>
-                        <th class="py-2 px-4">Market Cap</th>
-                        <th class="py-2 px-4">Shares Float</th>
-                        <th class="py-2 px-4">Alerts Count</th>
-                        <th class="py-2 px-4">Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <!-- Main Table (Wrapped in Scrollable Div for Responsiveness) -->
+            <div class="overflow-x-auto">
+                <table id="dataTable" class="min-w-full bg-gray-700 rounded-lg overflow-hidden text-center">
+                    <thead>
+                        <tr class="bg-gray-600">
+                            <th class="py-2 px-4">Symbol</th>
+                            <th class="py-2 px-4">Price</th>
+                            <th class="py-2 px-4">Price Change %</th>
+                            <th class="py-2 px-4">Has News</th>
+                            <th class="py-2 px-4">Volume</th>
+                            <th class="py-2 px-4">Market Cap</th>
+                            <th class="py-2 px-4">Shares Float</th>
+                            <th class="py-2 px-4">Alerts Count</th>
+                            <th class="py-2 px-4">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Table Data Goes Here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
 
     <!--Settings Modal -->
     <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
