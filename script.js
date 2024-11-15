@@ -1,8 +1,22 @@
 /**
+ * @typedef {Object} StockData
+ * @property {string} symbol - The stock symbol.
+ * @property {number} price - The stock price.
+ * @property {number} price_change_ratio - The price change ratio.
+ * @property {Array} news - An array of news articles related to the stock.
+ * @property {number} volume - The volume of the stock.
+ * @property {number} market_cap - The market capitalization of the stock.
+ * @property {number} shares_float - The number of shares available for trading.
+ * @property {number} alert_count - The number of active alerts for the stock.
+ * @property {string} internal_url - The internal URL of the stock's news page.
+ */
+
+/**
  * WebSocket URL for the Titan scanner service.
  * @constant {string}
  */
-const titanScannerWsUrl = "wss://ws.stocktitan.net:9021/null";
+//const titanScannerWsUrl = "wss://ws.stocktitan.net:9021/null";
+const titanScannerWsUrl = "wss://ws.stocktitan.net:9021/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjExNjY4NCwidXNlcm5hbWUiOiJzdmlkbGFrayIsInByZW1pdW0iOjAsInByZW1pdW1FeHBpcmF0aW9uIjpmYWxzZSwiZXhwIjoxNzMyMzAwMzU2LCJpYXQiOjE3MzE2OTU1NTZ9.4WZs5LWCt2cKTCJJBbIU1JIY7P7UMoo2Mnq8Na9axNM";
 
 /**
  * CSS class for light green background color.
@@ -76,16 +90,7 @@ const thresholds = {
 
 /**
  * Inserts a new row into the data table.
- * @param {Object} data - The stock data to display in the new row.
- * @param {string} data.symbol - The stock symbol.
- * @param {number} data.price - The stock price.
- * @param {number} data.price_change_ratio - The price change ratio.
- * @param {Array} data.news - An array of news articles related to the stock.
- * @param {number} data.volume - The volume of the stock.
- * @param {number} data.market_cap - The market capitalization of the stock.
- * @param {number} data.shares_float - The number of shares available for trading.
- * @param {number} data.alert_count - The number of active alerts for the stock.
- * @param {string} data.internal_url - The internal URL of the stock's news page.
+ * @param {StockData} data - The stock data.
  */
 function insertNewTableRow(data) {
     const tableBody = document.querySelector('#dataTable tbody');
@@ -100,16 +105,7 @@ function insertNewTableRow(data) {
 
 /**
  * Creates a table row element for displaying stock data.
- * @param {Object} data - The stock data to display in the new row.
- * @param {string} data.symbol - The stock symbol.
- * @param {number} data.price - The stock price.
- * @param {number} data.price_change_ratio - The price change ratio.
- * @param {Array} data.news - An array of news articles related to the stock.
- * @param {number} data.volume - The volume of the stock.
- * @param {number} data.market_cap - The market capitalization of the stock.
- * @param {number} data.shares_float - The number of shares available for trading.
- * @param {number} data.alert_count - The number of active alerts for the stock.
- * @param {string} data.internal_url - The internal URL of the stock's news page.
+ * @param {StockData} data - The stock data.
  * @returns {HTMLTableRowElement} The created table row element.
  */
 function createTableRow(data) {
@@ -258,17 +254,7 @@ function doesNotMeetThreshold(stockValue, filterType, threshold) {
 /**
  * Determines if a stock should be filtered out based on user settings stored in localStorage.
  * 
- * @param {Object} data - The stock data to evaluate.
- * @param {number} data.price - The stock price.
- * @param {number} data.volume - The stock volume.
- * @param {number} data.market_cap - The stock market capitalization.
- * @param {number} data.shares_float - The stock shares float (available for trading).
- * @param {Array} data.news - An array of news articles related to the stock.
- * @param {number} data.price_change_ratio - The price change ratio of the stock.
- * @param {number} data.alert_count - The number of active alerts for the stock.
- * @param {string} data.symbol - The stock symbol.
- * @param {string} data.internal_url - The internal URL of the stock's news page.
- * 
+ * @param {StockData} data - The stock data.
  * @returns {boolean} - Returns true if the stock should be filtered out; otherwise false.
  */
 function isStockFilteredOutByUserSettings(data) {
@@ -299,11 +285,7 @@ function isStockFilteredOutByUserSettings(data) {
  * This function uses the Brevo (formerly Sendinblue) API to send the email.
  * 
  * @param {Error} error - The error object that contains information about the error (e.g., message).
- * @param {Object} payload - The data object that is associated with the stock processing. This is typically the payload that failed during processing.
- * @param {string} payload.symbol - The stock symbol (e.g., 'AAPL').
- * @param {number} payload.price_change_ratio - The price change ratio of the stock.
- * @param {number} payload.alert_count - The number of alerts for the stock.
- * @param {Array} payload.news - An array of news related to the stock.
+ * @param {StockData} payload - The stock data.
  * 
  * @returns {void} - This function does not return anything. It performs an action of sending an email.
  */
@@ -346,6 +328,7 @@ function sendErrorEmail(error, payload) {
     requestNotificationPermission();
 
     const ws = new WebSocket(titanScannerWsUrl);
+
     ws.onerror = (msg, ev) => {
         console.log({ msg, ev });
     }
