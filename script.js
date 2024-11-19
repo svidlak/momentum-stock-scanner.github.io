@@ -326,7 +326,7 @@ function sendErrorEmail(error, payload) {
 (function () {
   requestNotificationPermission();
 
-  const ws = new WebSocket(webkitURL);
+  const ws = new WebSocket(websocketUrl);
 
   ws.onerror = (msg, ev) => {
     console.log({ msg, ev });
