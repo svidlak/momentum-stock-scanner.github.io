@@ -127,7 +127,7 @@ function createTableRow(data) {
   row.innerHTML = `
         <td class="py-2 px-4">${data.symbol}</td>
         <td class="py-2 px-4">${data.price}</td>
-        <td class="py-2 px-4 ${greenTextColor}">${formattedData.priceChangeRatio}</td>
+        <td class="py-2 px-4 ${data.price_change_ratio > 0 ? greenTextColor: redTextColor}">${formattedData.priceChangeRatio}</td>
         <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor + " underline" : redTextColor}">${formattedData.hasNews ? `<a href="${formattedData.redirectUrl}" target="_blank">Yes</a>` : 'No'}</td>
         <td class="py-2 px-4 ${formattedData.volumeBgClass}">${formattedData.volume}</td>
         <td class="py-2 px-4 ${formattedData.marketCapBgClass}">${formattedData.marketCap}</td>
@@ -261,6 +261,8 @@ function isStockFilteredOutByUserSettings(data) {
   if (!storage || !storage.length) return false;
 
   const formData = JSON.parse(storage);
+  if (formData.isBear && data.price_change_ratio > 0) return true;
+  if (!formData.isBear && data.price_change_ratio < 0) return true;
 
   if (
     doesNotMeetThreshold(data.price, formData.price, formData.priceInput) ||
@@ -342,22 +344,20 @@ function sendErrorEmail(error, payload) {
 
     if (type !== "journal") return;
 
-    if (payload.price_change_ratio > 0) {
-      try {
-        if (isStockFilteredOutByUserSettings(payload)) return;
+    try {
+      if (isStockFilteredOutByUserSettings(payload)) return;
 
-        insertNewTableRow(payload);
+      insertNewTableRow(payload);
 
-        if (payload.alert_count === 1 && payload.news.length > 0) {
-          insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
-          notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
-        }
-      } catch (e) {
-        console.log({ e });
-        console.log({ payload });
-        sendErrorEmail(e, payload);
+      if (payload.alert_count === 1 && payload.news.length > 0) {
+        insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
+        notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
       }
-
+    } catch (e) {
+      console.log({ e });
+      console.log({ payload });
+      sendErrorEmail(e, payload);
     }
+
   }
 })();

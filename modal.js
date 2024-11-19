@@ -19,6 +19,7 @@
  * @type {DefaultData}
  */
 const defaultData = {
+    isBear: false,
     price: 'above',
     priceInput: 0,
     hasNewsTrue: false,
@@ -42,6 +43,9 @@ function initializeFormFromCookie() {
     const storage = localStorage.getItem("formData");
     const formData = JSON.parse(storage);
 
+    console.log(!!formData?.isBear)
+    document.getElementById('bull-radio').checked = !formData?.isBear;
+    document.getElementById('bear-radio').checked = formData?.isBear;
     document.getElementById('price').value = formData.price || 'above';
     document.getElementById('priceInput').value = formData.priceInput || 0;
     document.getElementById('hasNewsTrue').checked = formData.hasNewsTrue || false;
@@ -62,6 +66,7 @@ function initializeFormFromCookie() {
  */
 function handleSaveForm() {
     const formData = {
+        isBear: !!document.getElementById('bear-radio').checked,
         price: document.getElementById('price').value,
         priceInput: parseInt(document.getElementById('priceInput').value),
         hasNewsTrue: document.getElementById('hasNewsTrue').checked,
