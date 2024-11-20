@@ -326,14 +326,18 @@ function sendErrorEmail(error, payload) {
 (function () {
   requestNotificationPermission();
 
-  const ws = new WebSocket(websocketUrl);
+  let ws = new WebSocket(websocketUrl);
 
-  ws.onerror = (msg, ev) => {
-    console.log({ msg, ev });
+  ws.onerror = () => {
+    setTimeout(() => {
+      ws = new WebSocket(websocketUrl);
+    }, 5000)
   }
 
-  ws.onclose = (msg, ev) => {
-    console.log({ msg, ev });
+  ws.onclose = () => {
+    setTimeout(() => {
+      ws = new WebSocket(websocketUrl);
+    }, 5000)
   }
 
   ws.onmessage = msg => {
