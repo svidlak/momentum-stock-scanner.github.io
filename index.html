@@ -9,7 +9,7 @@
     <script src="https://kit.fontawesome.com/be6fa95ceb.js" crossorigin="anonymous"></script>
 
     <title>Stock News Scanner</title>
-    <link rel="stylesheet" href="styles.css?v=0.0.2" />
+    <link rel="stylesheet" href="styles.css?v=0.0.3" />
 </head>
 
 <body class="bg-gray-900 text-white">
@@ -59,8 +59,8 @@
     </div>
 
     <!--Settings Modal -->
-    <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-96">
+    <div id="modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden overflow-x-auto">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-full sm:w-96 m-auto">
             <!-- Modal Header -->
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-white">Settings</h3>
@@ -69,6 +69,13 @@
 
             <!-- Modal Body with Form -->
             <form id="modalForm" class="space-y-4">
+                <!-- Bear / Bull -->
+                <div class="space-y-2">
+                    <input type="radio" id="bull-radio" value="bull" name="bull_bear">
+                    <label for="bull-radio" class="text-green-500">Bull</label><br>
+                    <input type="radio" id="bear-radio" value="bear" name="bull_bear">
+                    <label for="bear-radio" class="text-red-500">Bear</label><br>
+                </div>
                 <!-- Price -->
                 <div class="space-y-2">
                     <label for="price" class="text-white">Price</label>
@@ -171,7 +178,7 @@
         </div>
     </div>
 </body>
-<script src="modal.js?v=0.0.6"></script>
-<script src="script.js?v=0.0.7"></script>
+<script src="modal.js?v=0.0.8"></script
+<script src="script.js?v=0.0.8"></script>
 
 </html>

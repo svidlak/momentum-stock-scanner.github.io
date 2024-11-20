@@ -33,3 +33,7 @@
     transform: translateY(-10px);
     animation: rowAppear 0.5s ease-out forwards;
 }
+
+#modal {
+    margin: 0 auto;
+}
