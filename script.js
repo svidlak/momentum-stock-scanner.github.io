@@ -127,7 +127,7 @@ function createTableRow(data) {
   row.innerHTML = `
         <td class="py-2 px-4">${data.symbol}</td>
         <td class="py-2 px-4">${data.price}</td>
-        <td class="py-2 px-4 ${data.price_change_ratio > 0 ? greenTextColor: redTextColor}">${formattedData.priceChangeRatio}</td>
+        <td class="py-2 px-4 ${data.price_change_ratio > 0 ? greenTextColor : redTextColor}">${formattedData.priceChangeRatio}</td>
         <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor + " underline" : redTextColor}">${formattedData.hasNews ? `<a href="${formattedData.redirectUrl}" target="_blank">Yes</a>` : 'No'}</td>
         <td class="py-2 px-4 ${formattedData.volumeBgClass}">${formattedData.volume}</td>
         <td class="py-2 px-4 ${formattedData.marketCapBgClass}">${formattedData.marketCap}</td>
@@ -328,40 +328,50 @@ function sendErrorEmail(error, payload) {
 (function () {
   requestNotificationPermission();
 
-  let ws = new WebSocket(websocketUrl);
+  let ws;
 
-  ws.onerror = () => {
-    setTimeout(() => {
-      ws = new WebSocket(websocketUrl);
-    }, 5000)
-  }
+  const connectWebSocket = () => {
+    ws = new WebSocket(websocketUrl);
 
-  ws.onclose = () => {
-    setTimeout(() => {
-      ws = new WebSocket(websocketUrl);
-    }, 5000)
-  }
+    ws.onerror = () => {
+      console.error("WebSocket error. Reconnecting in 5 seconds...");
+      reconnectWebSocket();
+    };
 
-  ws.onmessage = msg => {
-    const { data: dataStringified } = msg;
-    const { header: { type }, payload } = JSON.parse(dataStringified);
+    ws.onclose = () => {
+      console.warn("WebSocket closed. Reconnecting in 5 seconds...");
+      reconnectWebSocket();
+    };
 
-    if (type !== "journal") return;
+    ws.onmessage = (msg) => {
+      const { data: dataStringified } = msg;
+      const { header: { type }, payload } = JSON.parse(dataStringified);
 
-    try {
-      if (isStockFilteredOutByUserSettings(payload)) return;
+      if (type !== "journal") return;
 
-      insertNewTableRow(payload);
+      try {
+        if (isStockFilteredOutByUserSettings(payload)) return;
 
-      if (payload.alert_count === 1 && payload.news.length > 0) {
-        insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
-        notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
+        insertNewTableRow(payload);
+
+        if (payload.alert_count === 1 && payload.news.length > 0) {
+          insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
+          notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
+        }
+      } catch (e) {
+        console.error("Error processing WebSocket message:", e);
+        console.log({ payload });
+        sendErrorEmail(e, payload);
       }
-    } catch (e) {
-      console.log({ e });
-      console.log({ payload });
-      sendErrorEmail(e, payload);
-    }
+    };
+  };
 
-  }
+  const reconnectWebSocket = () => {
+    setTimeout(() => {
+      connectWebSocket();
+    }, 5000);
+  };
+
+  // Initial WebSocket connection
+  connectWebSocket();
 })();
