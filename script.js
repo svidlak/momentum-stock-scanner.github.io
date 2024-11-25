@@ -328,50 +328,39 @@ function sendErrorEmail(error, payload) {
 (function () {
   requestNotificationPermission();
 
-  let ws;
+  let ws = new WebSocket(websocketUrl);
 
-  const connectWebSocket = () => {
-    ws = new WebSocket(websocketUrl);
-
-    ws.onerror = () => {
-      console.error("WebSocket error. Reconnecting in 5 seconds...");
-      reconnectWebSocket();
-    };
-
-    ws.onclose = () => {
-      console.warn("WebSocket closed. Reconnecting in 5 seconds...");
-      reconnectWebSocket();
-    };
-
-    ws.onmessage = (msg) => {
-      const { data: dataStringified } = msg;
-      const { header: { type }, payload } = JSON.parse(dataStringified);
-
-      if (type !== "journal") return;
-
-      try {
-        if (isStockFilteredOutByUserSettings(payload)) return;
-
-        insertNewTableRow(payload);
-
-        if (payload.alert_count === 1 && payload.news.length > 0) {
-          insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
-          notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
-        }
-      } catch (e) {
-        console.error("Error processing WebSocket message:", e);
-        console.log({ payload });
-        sendErrorEmail(e, payload);
-      }
-    };
-  };
-
-  const reconnectWebSocket = () => {
+  ws.onerror = () => {
     setTimeout(() => {
-      connectWebSocket();
-    }, 5000);
-  };
+      ws = new WebSocket(websocketUrl);
+    }, 5000)
+  }
 
-  // Initial WebSocket connection
-  connectWebSocket();
+  ws.onclose = () => {
+    setTimeout(() => {
+      ws = new WebSocket(websocketUrl);
+    }, 5000)
+  }
+
+  ws.onmessage = msg => {
+    const { data: dataStringified } = msg;
+    const { header: { type }, payload } = JSON.parse(dataStringified);
+
+    if (type !== "journal") return;
+
+    try {
+      if (isStockFilteredOutByUserSettings(payload)) return;
+
+      insertNewTableRow(payload);
+
+      if (payload.alert_count === 1 && payload.news.length > 0) {
+        insertHasntSeenBeforeStock(payload.symbol, formatPercentage(payload.price_change_ratio));
+        notifyAboutNewStock(payload.symbol, formatPercentage(payload.price_change_ratio));
+      }
+    } catch (e) {
+      console.log({ e });
+      console.log({ payload });
+      sendErrorEmail(e, payload);
+    }
+  }
 })();
