@@ -127,7 +127,7 @@ function createTableRow(data) {
   row.innerHTML = `
         <td class="py-2 px-4">${data.symbol}</td>
         <td class="py-2 px-4">${data.price}</td>
-        <td class="py-2 px-4 ${data.price_change_ratio > 0 ? greenTextColor: redTextColor}">${formattedData.priceChangeRatio}</td>
+        <td class="py-2 px-4 ${data.price_change_ratio > 0 ? greenTextColor : redTextColor}">${formattedData.priceChangeRatio}</td>
         <td class="py-2 px-4 ${formattedData.hasNews ? greenTextColor + " underline" : redTextColor}">${formattedData.hasNews ? `<a href="${formattedData.redirectUrl}" target="_blank">Yes</a>` : 'No'}</td>
         <td class="py-2 px-4 ${formattedData.volumeBgClass}">${formattedData.volume}</td>
         <td class="py-2 px-4 ${formattedData.marketCapBgClass}">${formattedData.marketCap}</td>
@@ -362,6 +362,5 @@ function sendErrorEmail(error, payload) {
       console.log({ payload });
       sendErrorEmail(e, payload);
     }
-
   }
 })();
